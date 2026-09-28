@@ -58,3 +58,9 @@ def main(argv=sys.argv[1:]):
         case "tag"          : cmd_tag(args)
         case _              : print("Bad command.")
 
+
+# git repo -> work tree (files version control live), git directory (git stores its own data)
+# Repository object : 1) directory exists
+#                     2) contains a subdirectory called .git
+#                     3) 
+
