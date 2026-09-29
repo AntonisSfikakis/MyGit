@@ -28,6 +28,9 @@ import sys
 # comprression
 import zlib
 
+# os and os.path -> filesystem abstraction routines
+import os
+
 argparser = argparse.ArgumentParser(description="The stupidest content ever")
 
 # init, commit etc -> subparsers
@@ -62,5 +65,42 @@ def main(argv=sys.argv[1:]):
 # git repo -> work tree (files version control live), git directory (git stores its own data)
 # Repository object : 1) directory exists
 #                     2) contains a subdirectory called .git
-#                     3) 
+#                     3) read its configuration in .git/config
+#                     4) check core.repositoryformatversion is 0
+
+# We build a constructor : takes an argument "force" which disables all checks
+# thats becuase repo_create() functions will later use Repository object. 
+# So we need a way to create a Repository object
+
+class GitRepository(object):
+    """A git Repository"""
+    
+    worktree = None
+    gitdir = None
+    conf = None
+
+
+#   force will disable all checks   
+    def __init__(self, path, force=False) -> None:
+        self.worktree = path
+        self.gitdir = os.path.join(path, ".git")
+        
+        if not (force or os.path.isdir(self.gitdir)):
+            raise Exception(f"Not a git Repository {path}")
+
+        # Read configuriation file in .git/config
+        # config parser reads and writes INI files (.git/config files)
+        # ConfigParser() allows me to add , store settings and treat file like a dictionary
+        self.conf = configparser.ConfigParser()
+        cf = repo_file(self, "config")
+
+        if cf and os.path.exists(cf):
+            self.conf.read([cf])
+        elif not force:
+            raise Exception("Configuration file missing")
+
+        if not force:
+            vers = int(self.conf.get("core","repositoryformatversion"))
+            if vers != 0:
+                raise Exception(f"Unsupported repositoryformatversion: {vers}")
 
