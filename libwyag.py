@@ -104,3 +104,7 @@ class GitRepository(object):
             if vers != 0:
                 raise Exception(f"Unsupported repositoryformatversion: {vers}")
 
+def repo_path(repo, *path):
+    """" Compute path under repo's gitdir. '"""
+    return os.path.join(repo.gitidir, *path)
+
